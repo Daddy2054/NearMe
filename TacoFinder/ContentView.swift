@@ -6,7 +6,7 @@ struct ContentView: View {
     @State private var locationManager = LocationManager()
     @State private var selectedPlace: Place?
     @State private var searchText: String = ""
-    
+    @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
     let commonPlaces = ["Restaurant", "Cafe", "Tacos", "Park", "Museum", "Hotel", "Airport"]
 
     var body: some View {
@@ -37,14 +37,16 @@ struct ContentView: View {
             }
             
             // Map View
-            Map(coordinateRegion: $locationManager.region, showsUserLocation: true, annotationItems: locationManager.places) { place in
-                MapAnnotation(coordinate: place.coordinate) {
-                    Image(systemName: "mappin.circle.fill")
-                        .foregroundColor(.red)
-                        .font(.title)
-                        .onTapGesture {
-                            selectedPlace = place
-                        }
+            Map(position: $position) {
+                ForEach(locationManager.places) { place in
+                    Annotation(place.name, coordinate: place.coordinate) {
+                        Image(systemName: "mappin.circle.fill")
+                            .foregroundColor(.red)
+                            .font(.title)
+                            .onTapGesture {
+                                selectedPlace = place
+                            }
+                    }
                 }
             }
             .ignoresSafeArea()
